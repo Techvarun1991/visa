@@ -71,7 +71,7 @@
 		</dependencies>
 	</dependencyManagement>
     <build>
-		<finalName>onehealth-patientmanagement</finalName>
+		onehealth-patientmanagement
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

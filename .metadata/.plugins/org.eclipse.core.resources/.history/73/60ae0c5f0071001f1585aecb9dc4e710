@@ -71,7 +71,6 @@
 	</dependencyManagement>
 
 	<build>
-		<finalName>onehealth-lifeStyleandhistory</finalName>
 		<plugins>
 			<plugin>
 				<groupId>
