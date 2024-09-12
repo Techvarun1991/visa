@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onehealth-historyandlifestyle
+  namespace: patient
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: onehealth-historyandlifestyle
+  template:
+    metadata:
+      labels:
+        app: onehealth-historyandlifestyle
+    spec:
+      containers:
+      - name: onehealth-historyandlifestyle
+        image: yjb28/lifestyle:v11
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "server1"
+        ports:
+        - containerPort: 8080
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: onehealth-historyandlifestyle
+  namespace: patient
+spec:
+  selector:
+    app: onehealth-historyandlifestyle
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    nodePort: 30005
+  type: NodePort
+  

@@ -1,0 +1,99 @@
+#
+##       spring.cloud.config.enabled=false
+#        spring.application.name=${APPLICATION_NAME:onehealth-lifeStyleandhistory}
+#        #server.port=8080
+#
+#        # Replace this URL with the actual URL of your patientProfile microservice
+#        apiGatewayUrl=${API_GATEWAY:https://192.168.1.206:30002}
+#
+#
+#        # Database configuration
+#        spring.datasource.url=jdbc:postgresql://${POSTGRES_HOST:192.168.1.206}:30432/${POSTGRES_DB:onehealthdb}?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
+#        spring.datasource.username=${POSTGRES_USER:onehealth}
+#        spring.datasource.password=${POSTGRES_PASSWORD:onehealth}
+#        spring.datasource.driver-class-name=org.postgresql.Driver
+#
+#        # JPA/Hibernate configuration
+#        spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+#        spring.jpa.hibernate.ddl-auto=update
+#        spring.jpa.properties.hibernate.format_sql=true
+#        
+#           #sudo keytool -genkey -alias tomcat -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+#		#server.port: 8443
+#		#server.ssl.key-store: classpath:keystore.p12
+##		server.ssl.key-store: /app/keystore.p14
+##		server.ssl.key-store-password: arogyamandi
+##		server.ssl.keyStoreType: PKCS12
+##		server.ssl.keyAlias: tomcat
+#
+#        ## Eureka client configurations
+#        spring.main.web-application-type=reactive
+#        eureka.client.register-with-eureka=true
+#        eureka.client.fetch-registry=true
+#        eureka.client.serviceUrl.defaultZone=http://192.168.1.206:30001/eureka
+#        #eureka.client.serviceUrl.defaultZone=${EUREKA_SERVER:https://serviceregistry-yjb28-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/eureka}
+
+
+
+	
+#	spring.cloud.config.enabled=false
+	spring.application.name=${APPLICATION_NAME:onehealth-lifeStyleandhistory}
+	
+	# Replace this URL with the actual URL of your patientProfile microservice
+	apiGatewayUrl=${API_GATEWAY:https://localhost:8000}
+	spring.main.allow-bean-definition-overriding=true
+
+	# Database configuration (PostgreSQL)
+	spring.datasource.url=jdbc:postgresql://localhost:5432/visa?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
+	spring.datasource.username=postgres
+	spring.datasource.password=infobell
+	spring.datasource.driver-class-name=org.postgresql.Driver
+	
+	# JPA/Hibernate configuration
+	spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+	spring.jpa.hibernate.ddl-auto=update
+	spring.jpa.properties.hibernate.format_sql=true
+	
+	## Eureka client configurations
+#	spring.main.web-application-type=reactive
+	eureka.client.register-with-eureka=true
+	eureka.client.fetch-registry=true
+	eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
+	#eureka.client.serviceUrl.defaultZone=${EUREKA_SERVER:https://serviceregistry-yjb28-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/eureka}
+	
+#	
+#	
+## Keycloak/OAuth2 configuration
+#realm-name=aarogyamandi
+#server-url=http://192.168.1.206:32080/
+#client-id=admin-cli
+#grant-type=password
+#password=admin
+#username=onehealthinfobell@gmail.com
+#
+## OAuth2 Client configuration
+#spring.security.oauth2.client.provider.keycloak.token-uri=http://192.168.1.206:32080/realms/aarogyamandi/protocol/openid-connect/token
+#spring.security.oauth2.client.provider.keycloak.authorization-uri=http://192.168.1.206:32080/realms/aarogyamandi/protocol/openid-connect/
+#spring.security.oauth2.client.provider.keycloak.jwk-set-uri=http://192.168.1.206:32080/realms/aarogyamandi/protocol/openid-connect/certs
+#spring.security.oauth2.client.provider.keycloak.user-info-uri=http://192.168.1.206:32080/realms/aarogyamandi/protocol/openid-connect/userinfo
+#
+#spring.security.oauth2.client.registration.keycloak.client-id=aarogyamandi-patient
+##spring.security.oauth2.client.registration.keycloak.client-secret=NTuH5ykcPOiZSBSZXMo1ThMmu9lU2oLB
+##spring.security.oauth2.client.registration.keycloak.scope=openid,profile,email
+#spring.security.oauth2.client.registration.keycloak.authorization-grant-type=password
+#spring.security.oauth2.client.registration.keycloak.redirect-uri=http://localhost:8080/*
+#
+## Resource Server configuration (opaque token introspection)
+#spring.security.oauth2.resourceserver.opaquetoken.client-id=aarogyamandi-cli
+#spring.security.oauth2.resourceserver.opaquetoken.client-secret=NTuH5ykcPOiZSBSZXMo1ThMmu9lU2oLB
+#spring.security.oauth2.resourceserver.opaquetoken.introspection-uri=http://192.168.1.206:32080/realms/aarogyamandi/protocol/openid-connect/token/introspect
+#
+#	
+#	
+	
+	
+    logging.level.com.oneHealth.Appointments.serviceImplementation=DEBUG
+	
+	
+	
+	

@@ -1,0 +1,132 @@
+package com.onehealth.patientmanagement.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.onehealth.patientmanagement.entity.GeneralUser;
+import com.onehealth.patientmanagement.entity.PatientProfile;
+
+import jakarta.transaction.Transactional;
+
+public interface GeneralUserRepository extends JpaRepository<GeneralUser, Long> {
+
+    // Fetch a GeneralUser by their emailId and mobileNumber
+    GeneralUser findByEmailIdAndMobileNumber(String emailId, String mobileNumber);
+
+    GeneralUser findByEmailId(String emailId);
+    // Check if an emailId exists (case insensitive)
+    boolean existsByEmailIdIgnoreCase(String emailId);
+
+    // Fetch all GeneralUsers with pagination
+    Page<GeneralUser> findAll(Pageable pageable);
+
+    // Find GeneralUsers by their first name (case insensitive)
+    List<GeneralUser> findByFirstNameIgnoreCase(String firstName);
+
+    // Find a GeneralUser by their emailId (case insensitive)
+    Optional<GeneralUser> findByEmailIdIgnoreCase(String emailId);
+
+    // Find PatientProfiles by userId
+    List<PatientProfile> findByUserId(Long userId);
+    
+    @Override
+    default boolean existsById(Long userId) {
+    	// TODO Auto-generated method stub
+    	return false;
+    }
+
+    // Delete all PatientProfiles by userId
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM PatientProfile p WHERE p.generalUser.userId = :userId")
+    void deleteAllProfilesByUserId(@Param("userId") Long userId);
+
+    // Check if a userId exists
+    boolean existsByUserId(Long userId);
+
+    // Find a PatientProfile by userId, first name, and last name (case insensitive)
+    PatientProfile findByUserIdAndFirstNameIgnoreCaseAndLastNameIgnoreCase(Long userId, String firstName,
+            String lastName);
+
+    // Find a PatientProfile by patientId
+    @Query("SELECT p FROM PatientProfile p WHERE p.patientId = :patientId")
+    PatientProfile findPatientProfileByPatientId(@Param("patientId") int patientId);
+    
+    // Delete a PatientProfile by patientId
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM PatientProfile p WHERE p.patientId = :patientId")
+    void deletePatientProfileById(@Param("patientId") int patientId);
+    // Delete a PatientProfile by patientId
+
+    @Modifying
+    @Query("DELETE FROM PatientProfile p WHERE p.generalUser.userId = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
+
+	boolean existsById(Long userId);
+
+
+
+}
+
+
+
+//package com.onehealth.patientmanagement.repository;
+//
+//import java.util.List;
+//import java.util.Optional;
+//
+//import org.springframework.data.domain.Page;
+//import org.springframework.data.domain.Pageable;
+//import org.springframework.data.jpa.repository.JpaRepository;
+//import org.springframework.data.jpa.repository.Modifying;
+//import org.springframework.data.jpa.repository.Query;
+//import org.springframework.data.repository.query.Param;
+//
+//import com.onehealth.patientmanagement.entity.GeneralUser;
+//import com.onehealth.patientmanagement.entity.PatientProfile;
+//
+//import jakarta.transaction.Transactional;
+//
+//public interface GeneralUserRepository extends JpaRepository<GeneralUser, String> {
+//
+//	GeneralUser findByEmailIdAndMobileNumber(String emailId, String mobileNumber);
+//
+//	boolean existsByEmailIdIgnoreCase(String emailId);
+//
+//	Page<GeneralUser> findAll(Pageable pageable);
+//
+//	List<GeneralUser> findByFirstNameIgnoreCase(String firstName);
+//
+//	Optional<GeneralUser> findByEmailIdIgnoreCase(String emailId);
+//
+//	List<PatientProfile> findByUserId(String userId);
+//
+//	void deleteAllProfileByUserId(String userId);
+//
+//	boolean existsByUserId(String userId);
+//
+//	PatientProfile findByUserIdAndFirstNameIgnoreCaseAndLastNameIgnoreCase(String userId, String firstName,
+//			String lastName);
+//
+//	@Query("SELECT p FROM PatientProfile p WHERE p.patientId = :patientId")
+//	PatientProfile findPatientProfileByPatientId(@Param("patientId") String patientId);
+//
+//	@Modifying
+//	@Transactional
+//	@Query("DELETE FROM PatientProfile p WHERE p.patientId = :patientId")
+//	void deletePatientProfileById(@Param("patientId") String patientId);
+//
+//	@Modifying
+//	@Transactional
+//	@Query("DELETE FROM PatientProfile pp WHERE pp.generalUser.userId = :userId")
+//	void deletePatientProfilesByUserId(@Param("userId") String userId);
+//
+//}

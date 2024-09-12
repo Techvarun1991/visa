@@ -1,0 +1,65 @@
+#
+##       spring.cloud.config.enabled=false
+#        spring.application.name=onehealth-patientmanagement
+#        #server.port=8082
+##       RestAssured.port = 8080;
+#        # Replace this URL with the actual URL of your patientProfile microservice
+#        apiGatewayUrl=${API_GATEWAY:https://192.168.1.206:30002}
+#
+#        # Database configuration
+#        spring.datasource.url=jdbc:postgresql://localhost:5432/Patient?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
+#        spring.datasource.username=postgres
+#        spring.datasource.password=root
+#        spring.datasource.driver-class-name=org.postgresql.Driver
+##        server.servlet.context-path=/patientProfile
+#
+#        # JPA/Hibernate configuration
+#        spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+#        spring.jpa.hibernate.ddl-auto=update
+#        spring.jpa.properties.hibernate.format_sql=true
+#        
+#        #sudo keytool -genkey -alias tomcat -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+#		#server.port: 8443
+#		#server.ssl.key-store: classpath:keystore.p12
+##		server.ssl.key-store: /app/keystore.p12
+##		server.ssl.key-store-password: arogyamandi
+##		server.ssl.keyStoreType: PKCS12
+##		server.ssl.keyAlias: tomcat
+#
+#        ## Eureka client configurations
+##        spring.main.web-application-type=reactive
+##        eureka.client.register-with-eureka=true
+##        eureka.client.fetch-registry=true
+##        eureka.client.serviceUrl.defaultZone=http://192.168.1.206:30001/eureka
+#        #eureka.client.serviceUrl.defaultZone=${EUREKA_SERVER:https://serviceregistry-yjb28-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/eureka}
+#
+#
+
+
+
+
+server.port=8080
+# Spring Cloud Config (disabled in your case)
+spring.cloud.config.enabled=false
+
+# Application name (with default value if not provided)
+spring.application.name=${APPLICATION_NAME:onehealth-patientmanagement}
+# Replace this URL with the actual URL of your patientProfile microservice
+apiGatewayUrl=${API_GATEWAY:https://localhost:8000}
+spring.main.allow-bean-definition-overriding=true
+
+# Database configuration (PostgreSQL)
+spring.datasource.url=jdbc:postgresql://192.168.0.194:5432/visa?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
+spring.datasource.username=postgres
+spring.datasource.password=infobell
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate configuration
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.format_sql=true
+
+## Eureka client configurations
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka

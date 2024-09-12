@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onehealth-patientmanagement
+  namespace: patient
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: onehealth-patientmanagement
+  template:
+    metadata:
+      labels:
+        app: onehealth-patientmanagement
+    spec:
+      containers:
+      - name: onehealth-patientmanagement
+        image: yjb28/patientmanagement:v3
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "server1"
+        ports:
+        - containerPort: 8080
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: onehealth-patientmanagement
+  namespace: patient
+spec:
+  selector:
+    app: onehealth-patientmanagement
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    nodePort: 30004
+  type: NodePort
+  

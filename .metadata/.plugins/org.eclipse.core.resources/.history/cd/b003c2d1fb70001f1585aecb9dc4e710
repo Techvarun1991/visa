@@ -1,0 +1,533 @@
+package com.onehealth.patientmanagement.serviceImpl;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import com.onehealth.patientmanagement.entity.GeneralUser;
+import com.onehealth.patientmanagement.entity.PatientProfile;
+import com.onehealth.patientmanagement.exception.DTO.ChangePasswordRequest;
+import com.onehealth.patientmanagement.exception.DTO.CreatePatientProfileDto;
+import com.onehealth.patientmanagement.exception.DTO.CreateUserRequestDto;
+import com.onehealth.patientmanagement.exception.DTO.GeoLocationDto;
+import com.onehealth.patientmanagement.exception.DTO.MyWebClientException;
+import com.onehealth.patientmanagement.exception.DTO.UpdateProfileDto;
+import com.onehealth.patientmanagement.exception.DTO.UserProfileResponse;
+import com.onehealth.patientmanagement.exceptionn.DatabaseException;
+import com.onehealth.patientmanagement.exceptionn.EmailAlreadyRegisteredException;
+import com.onehealth.patientmanagement.exceptionn.ProfileNotFoundException;
+import com.onehealth.patientmanagement.exceptionn.RecordNotFoundException;
+import com.onehealth.patientmanagement.repository.GeneralUserRepository;
+import com.onehealth.patientmanagement.repository.PatientProfileRepository;
+
+import com.onehealth.patientmanagement.service.PatientProfileService;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
+import reactor.core.scheduler.Schedulers;
+
+@Service
+public class PatientProfileServiceImpl implements PatientProfileService {
+
+
+	// Logger for logging messages
+		private static final Logger LOGGER = LoggerFactory.getLogger(PatientProfileServiceImpl.class);
+	@Autowired
+	private GeneralUserRepository generalUserRepository;
+
+	@Autowired
+	private PatientProfileRepository profileRepository;
+	
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Value("${apiGatewayUrl}")
+	private String apiGatewayUrl;
+
+	private final WebClient webClient;
+
+	@Autowired
+	public PatientProfileServiceImpl(WebClient webClient) {
+		this.webClient = webClient;
+	}
+	
+	@Override
+	public GeneralUser createGeneralUser(CreateUserRequestDto requestDto)
+	        throws EmailAlreadyRegisteredException {
+	    LOGGER.info("Attempting to create user with email: {}", requestDto.getEmailId());
+
+	    // Check if the email already exists
+	    if (generalUserRepository.existsByEmailIdIgnoreCase(requestDto.getEmailId())) {
+	        LOGGER.warn("Email is already registered: {}", requestDto.getEmailId());
+	        throw new EmailAlreadyRegisteredException("Email is already registered");
+	    }
+
+	    try {
+	        // Create GeneralUser entity
+	        GeneralUser generalUser = new GeneralUser();
+	        generalUser.setIsEnabled(true);
+	        generalUser.setMobileNumber(requestDto.getMobileNumber());
+	        generalUser.setEmailId(requestDto.getEmailId());
+	        generalUser.setFirstName(requestDto.getFirstName());
+	        generalUser.setLastName(requestDto.getLastName());
+	        generalUser.setPassword(requestDto.getPassword());
+
+	        // Create the default PatientProfile with the same details as GeneralUser
+	        PatientProfile patientProfile = new PatientProfile();
+	        patientProfile.setFirstName(requestDto.getFirstName());
+	        patientProfile.setLastName(requestDto.getLastName());
+	        patientProfile.setMobileNumber(requestDto.getMobileNumber());
+	        patientProfile.setEmailId(requestDto.getEmailId());
+	        patientProfile.setGeneralUser(generalUser);
+
+	        Set<PatientProfile> patientProfiles = new HashSet<>();
+	        patientProfiles.add(patientProfile);
+
+	        generalUser.setPatientProfiles(patientProfiles);
+
+	        // Save GeneralUser entity along with PatientProfiles
+	        return generalUserRepository.save(generalUser);
+
+	    } catch (Exception e) {
+	        LOGGER.error("Failed to create general user", e);
+	        throw new RuntimeException("Failed to create general user", e);
+	    }
+	}
+
+	public Long getByEmail(String emailId) {
+	    Optional<GeneralUser> generalUser = generalUserRepository.findByEmailIdIgnoreCase(emailId);
+	    return generalUser.get().getUserId();
+	}
+
+	private PatientProfile mapToPatientProfile(GeneralUser generalUser) {
+	    PatientProfile patientProfile = new PatientProfile();
+	    // Set properties from generalUser to patientProfile
+	    patientProfile.setEmailId(generalUser.getEmailId());
+	    patientProfile.setFirstName(generalUser.getFirstName());
+	    patientProfile.setLastName(generalUser.getLastName());
+	    // Map other fields as needed
+	    return patientProfile;
+	}
+	
+	@Override
+	public GeneralUser getUserByEmailIdAndPassword(String emailId, String password) throws RecordNotFoundException, DatabaseException{
+ 
+		System.out.println("Inside Login..." + emailId + "---" + password);
+		GeneralUser user = generalUserRepository.findByEmailIdIgnoreCase(emailId)
+				.orElseThrow(() -> new RecordNotFoundException("No Profile Found With This Email Id: " + emailId));
+ 
+		if (BCrypt.checkpw(password, user.getPassword())) {
+			return user;
+		} else {
+			throw new DatabaseException("Invalid email or password");
+		}
+	}
+
+
+ 
+
+	@Override
+	public UserProfileResponse getAllUsers(int page, int pageSize) {
+		// Adjust the page number to be 0-based
+		int adjustedPage = (page > 0) ? page - 1 : 0;
+
+		// Create a Pageable object with sorting by rating in descending order
+		Sort sort = Sort.by(Sort.Direction.DESC, "userId");
+		Pageable pageable = PageRequest.of(adjustedPage, pageSize, sort);
+
+		// Fetch the paginated and sorted results
+		Page<GeneralUser> usersPage = generalUserRepository.findAll(pageable);
+
+		// Get total number of pages and current page number
+		int totalPages = usersPage.getTotalPages();
+		int currentPage = usersPage.getNumber() + 1;
+
+		// Get the content of the current page
+		List<GeneralUser> userProfiles = usersPage.getContent();
+
+		// Return the response object
+		return new UserProfileResponse(userProfiles, totalPages, currentPage);
+	}
+
+	/**
+	 * Get a Patient User by their ID.
+	 *
+	 * @param userId The ID of the user to retrieve.
+	 * @return The retrieved Patient User.
+	 * @throws RecordNotFoundException If the user with the given ID is not found.
+	 */
+	@Override
+	public Optional<GeneralUser> getUserById(Long userId) throws RecordNotFoundException {
+		// Attempt to find the user by ID
+		Optional<GeneralUser> patientUser = generalUserRepository.findById(userId);
+
+		// If the user is found, return it; otherwise, throw RecordNotFoundException
+		if (patientUser.isPresent()) {
+			return patientUser;
+		} else {
+			throw new RecordNotFoundException("User Not Found with userId : " + userId);
+		}
+	}
+
+	/**
+	 * Update an existing Patient User.
+	 *
+	 * @param userId The ID of the user to be updated.
+	 * @param user   The updated Patient User object.
+	 * @return The updated Patient User.
+	 * @throws RecordNotFoundException If the user with the given ID is not found.
+	 */
+	@Override
+	public GeneralUser updateUser(Long userId, GeneralUser user) throws RecordNotFoundException {
+
+		if (!generalUserRepository.existsById(userId)) {
+			throw new RecordNotFoundException("User not found with ID: " + userId);
+		}
+		user.setUserId(userId);
+		return generalUserRepository.save(user);
+	}
+
+	/**
+	 * Delete a Patient User by their ID.
+	 *
+	 * @param userId The ID of the user to be deleted.
+	 * @throws RecordNotFoundException If the user with the given ID is not found.
+	 */
+	@Override
+	@Transactional
+	public void deleteUser(Long userId) throws RecordNotFoundException {
+	    // Check if the user exists in the database
+	    if (!generalUserRepository.existsById(userId)) {
+	        throw new RecordNotFoundException("User not found with ID: " + userId);
+	    }
+
+	    // Now delete the user (this will also delete the associated PatientProfiles
+	    // because of CascadeType.ALL)
+	    generalUserRepository.deleteById(userId);
+	}
+
+
+	/**
+	 * Get a Patient User by their email ID and mobile number.
+	 *
+	 * @param emailId      The email ID of the user.
+	 * @param mobileNumber The mobile number of the user.
+	 * @return The retrieved Patient User or null if not found.
+	 */
+	@Override
+	public GeneralUser getUserBymobileNumberandEmailId(String emailId, String mobileNumber) throws DatabaseException {
+		try {
+			return generalUserRepository.findByEmailIdAndMobileNumber(emailId, mobileNumber);
+		} catch (Exception e) {
+			// Log the exception or handle it as appropriate
+			throw new DatabaseException("An error occurred while retrieving user by email and mobile number");
+		}
+	}
+
+
+
+	@Override
+	public long getUserCount() {
+		try {
+			return generalUserRepository.count();
+		} catch (Exception e) {
+			// Log the exception or handle it as appropriate
+			e.printStackTrace(); // Example: Print the stack trace for debugging purposes
+			return -1; // Or any other appropriate default value or error indicator
+		}
+	}
+
+
+	@Override
+	public List<GeneralUser> findByFirstName(String firstName) {
+		return generalUserRepository.findByFirstNameIgnoreCase(firstName);
+	}
+
+	@Override
+	public List<GeneralUser> findByEmailId(String emailId) {
+		Optional<GeneralUser> optionalPatientUser = generalUserRepository.findByEmailIdIgnoreCase(emailId);
+		return optionalPatientUser.map(Collections::singletonList).orElse(Collections.emptyList());
+	}
+
+	@Override
+	public CreatePatientProfileDto createPatientProfile(CreatePatientProfileDto patient)
+	        throws ProfileNotFoundException {
+	    LOGGER.info("Creating new patient profile");
+
+	    // Check if the user ID is null
+	    if (patient.getUserId() == null) {
+	        LOGGER.warn("User ID is null");
+	        throw new ProfileNotFoundException("User ID cannot be null");
+	    }
+
+	    // Check if the user exists in the database
+	    GeneralUser user = generalUserRepository.findById(patient.getUserId())
+	        .orElseThrow(() -> new ProfileNotFoundException("User doesn't exist"));
+
+	    // Check if a patient profile with the same userId, firstName, lastName, and email exists
+	    Optional<PatientProfile> existingProfile = profileRepository.findByLastNameAndFirstNameAndGeneralUserEmailIdAndGeneralUserUserId(
+	        patient.getLastName(), patient.getFirstName(), patient.getEmailId(), patient.getUserId());
+
+	    if (existingProfile.isPresent()) {
+	        throw new ProfileNotFoundException("Patient Already Exists");
+	    }
+
+	    try {
+	        Set<PatientProfile> patientProfiles = new HashSet<>();
+	        PatientProfile profile = new PatientProfile();
+
+	        profile.setAddress(patient.getAddress());
+	        profile.setAge(patient.getAge());
+	        profile.setBloodGroup(patient.getBloodGroup());
+	        profile.setCity(patient.getCity());
+	        profile.setCountry(patient.getCountry());
+	        profile.setDob(patient.getDob());
+	        profile.setEmailId(patient.getEmailId());
+	        profile.setFirstName(patient.getFirstName());
+	        profile.setGender(patient.getGender());
+	        profile.setHeight(patient.getHeight());
+	        profile.setImage(patient.getImage());
+	        profile.setLastName(patient.getLastName());
+	        profile.setMaritalStatus(patient.getMaritalStatus());
+	        profile.setMobileNumber(patient.getMobileNumber());
+	        profile.setPinCode(patient.getPinCode());
+	        profile.setWeight(patient.getWeight());
+
+	        patientProfiles.add(profile);
+	        user.setPatientProfiles(patientProfiles);
+	        profile.setGeneralUser(user);
+
+	        // Save the user and associated patient profile
+	        generalUserRepository.save(user);
+
+	        LOGGER.info("Patient profile created successfully for user ID: {}", patient.getUserId());
+
+	        return patient;
+	    } catch (WebClientException e) {
+	        throw new MyWebClientException("Internal Server Error From Email Service: " + e.getMessage());
+	    }
+	}
+
+//	@Override
+//	public CreatePatientProfileDto createPatientProfile(CreatePatientProfileDto patient)
+//			throws ProfileNotFoundException {
+//		// Log the start of the method
+//		LOGGER.info("Creating new patient profile");
+//		// Validate user ID
+//		if (patient.getUserId() == null ) {
+//		    LOGGER.info("Creating new patient profile");
+//		    throw new ProfileNotFoundException("User doesn't exist");
+//		}
+//
+//		
+//
+//		// Check if a patient profile with the same userId, firstName, and lastName
+//		// exists
+//		Optional<PatientProfile> existingProfile = profileRepository.findByLastNameAndFirstNameAndGeneralUserEmailIdAndGeneralUserUserId(
+//			patient.getLastName(), patient.getFirstName(), patient.getEmailId(),patient.getUserId());
+//		
+//		if (existingProfile.isPresent()) {
+//			
+//			throw new ProfileNotFoundException("Patient Already Exists");
+//		}
+//
+//		try {
+//
+//			Set<PatientProfile> patientProfiles = new HashSet<>();
+//			PatientProfile profile = new PatientProfile();
+//			profile.setAddress(patient.getAddress());
+//			profile.setAge(patient.getAge());
+//			profile.setBloodGroup(patient.getBloodGroup());
+//			profile.setCity(patient.getCity());
+//			profile.setCountry(patient.getCountry());
+//			profile.setDob(patient.getDob());
+//			profile.setEmailId(patient.getEmailId());
+//			profile.setFirstName(patient.getFirstName());
+//			profile.setGender(patient.getGender());
+//			profile.setHeight(patient.getHeight());
+//			profile.setImage(patient.getImage());
+//			profile.setLastName(patient.getLastName());
+//			profile.setMaritalStatus(patient.getMaritalStatus());
+//			profile.setMobileNumber(patient.getMobileNumber());
+//			profile.setPinCode(patient.getPinCode());
+//			profile.setWeight(patient.getWeight());
+//			
+//			patientProfiles.add(profile);
+//			GeneralUser user = generalUserRepository.findById(patient.getUserId()).orElseThrow();
+//			user.setPatientProfiles(patientProfiles);
+//			profile.setGeneralUser(user);
+//			
+//			generalUserRepository.save(user);
+//			// Log the successful creation of patient profile
+//			LOGGER.info("Patient profile created successfully for user ID: {}", patient.getUserId());
+//			
+//
+//			return patient;
+//		} catch (WebClientException e) {
+//			throw new MyWebClientException("Internal Server Error From Email Service: " + e.getMessage());
+//		}
+//	}
+
+	@Override
+	public Set<PatientProfile> getAllPatientsByUserId(Long userId) {
+		GeneralUser user = generalUserRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+		return user.getPatientProfiles();
+	}
+
+	@Override
+	public PatientProfile getPatientProfileById(int patientId) {
+		return generalUserRepository.findPatientProfileByPatientId(patientId);
+	}
+	
+	@Override
+	public boolean existsPatientProfileById(int patientId) {
+		
+		 boolean generalUser = generalUserRepository.findByIdI(patientId);
+		 boolean patientUser = profileRepository.findById(patientId)
+		 
+		 
+	}
+
+	@Override
+	public void updatePatientProfile(UpdateProfileDto dto) throws ProfileNotFoundException, MyWebClientException {
+		// Retrieve the patient profile from the repository by ID
+		System.out.println(dto.getPatientId());
+		PatientProfile profile = generalUserRepository.findPatientProfileByPatientId(dto.getPatientId());
+
+		// Update the fields
+		profile.setAddress(dto.getAddress());
+		profile.setAge(dto.getAge());
+		profile.setBloodGroup(dto.getBloodGroup());
+		profile.setCity(dto.getCity());
+		profile.setCountry(dto.getCountry());
+		profile.setDob(dto.getDob());
+		profile.setEmailId(dto.getEmailId());
+		profile.setFirstName(dto.getFirstName());
+		profile.setGender(dto.getGender());
+		profile.setHeight(dto.getHeight());
+		profile.setImage(dto.getImage());
+		profile.setLastName(dto.getLastName());
+		profile.setMaritalStatus(dto.getMaritalStatus());
+		profile.setMobileNumber(dto.getMobileNumber());
+		profile.setPinCode(dto.getPinCode());
+		profile.setWeight(dto.getWeight());
+
+
+		profileRepository.save(profile);
+
+		// Log the successful update
+		LOGGER.info("Updated patient profile for ID: {}", dto.getPatientId());
+	}
+
+	@Override
+	@Transactional
+	public void deletePatientProfileById(int patientId) throws ProfileNotFoundException {
+
+		generalUserRepository.deletePatientProfileById(patientId);
+	}
+
+	@Override
+	@Transactional
+	public List<PatientProfile> getAllPatientProfiles() throws ProfileNotFoundException {
+		try {
+			List<PatientProfile> patientProfiles = generalUserRepository.findAll().stream()
+					.flatMap(generalUser -> generalUser.getPatientProfiles().stream()).collect(Collectors.toList());
+
+			if (patientProfiles.isEmpty()) {
+				throw new ProfileNotFoundException("No patient profiles found.");
+			}
+
+			return patientProfiles;
+		} catch (ProfileNotFoundException e) {
+			throw e; // rethrow custom exception
+		} catch (Exception e) {
+			throw new RuntimeException("An error occurred while fetching patient profiles.", e);
+		}
+	}
+
+	@Transactional
+	@Override
+	public void deletePatientProfilesByUserId(Long userId) throws ProfileNotFoundException {
+	    // Log the start of the method
+	    LOGGER.info("Attempting to delete patient profiles for userId: {}", userId);
+
+	    // Check if the user exists in the database
+	    GeneralUser user = generalUserRepository.findById(userId)
+	            .orElseThrow(() -> new ProfileNotFoundException("User with ID " + userId + " does not exist"));
+
+	    try {
+	        // Proceed with deleting patient profiles associated with the userId
+	        generalUserRepository.deleteByUserId(userId);
+
+	        // Log successful deletion
+	        LOGGER.info("Successfully deleted patient profiles for userId: {}", userId);
+	    } catch (Exception e) {
+	        // Log the exception for debugging purposes
+	        LOGGER.error("Error occurred while deleting patient profiles for userId: " + userId, e);
+	        // Throw a new custom exception to inform the caller of the failure
+	        throw new RuntimeException("Failed to delete patient profiles for userId: " + userId);
+	    }
+	}
+
+
+
+	@Override
+	public PatientProfile getPatientByUserIdAndNameIgnoreCase(Long userId, String firstName, String lastName) {
+		try {
+			// Log the start of the method
+			LOGGER.info("Fetching patient profile by user ID and name: userId={}, firstName={}, lastName={}", userId,
+					firstName, lastName);
+
+			// Call the repository method to retrieve the patient profile
+			return generalUserRepository.findByUserIdAndFirstNameIgnoreCaseAndLastNameIgnoreCase(userId, firstName,
+					lastName);
+		} catch (Exception ex) {
+			// Log the error message and rethrow the exception
+			LOGGER.error(
+					"Error while fetching patient profile by user ID and name: userId={}, firstName={}, lastName={}",
+					userId, firstName, lastName, ex);
+			throw ex; // Rethrow the exception
+		}
+	}
+
+	@Override
+	public int deletePatientsByUserId(Long userId) {
+		GeneralUser user = generalUserRepository.findById(userId).orElseThrow();
+		user.getPatientProfiles().clear();
+		return user.getPatientProfiles().size();
+	}
+
+	
+
+
+
+}

@@ -1,0 +1,26 @@
+spring.application.name=${APPLICATION_NAME:onehealth-lifeStyleandhistory}
+
+# Replace this URL with the actual URL of your patientProfile microservice
+apiGatewayUrl=${API_GATEWAY:https://localhost:8000}
+spring.main.allow-bean-definition-overriding=true
+
+# Database configuration (PostgreSQL)
+spring.datasource.url=jdbc:postgresql://localhost:5432/visa?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
+spring.datasource.username=postgres
+spring.datasource.password=infobell
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate configuration
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.format_sql=true
+
+## Eureka client configurations
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
+#eureka.client.serviceUrl.defaultZone=${EUREKA_SERVER:https://serviceregistry-yjb28-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/eureka}
+	
+	
+	
+	

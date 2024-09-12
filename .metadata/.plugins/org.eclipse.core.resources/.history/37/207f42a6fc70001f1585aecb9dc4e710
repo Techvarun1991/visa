@@ -1,0 +1,17 @@
+package com.onehealth.patientmanagement.repository;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.onehealth.patientmanagement.entity.PatientProfile;
+
+public interface PatientProfileRepository extends JpaRepository<PatientProfile, Integer>{
+
+	Optional<PatientProfile> findByLastNameAndFirstNameAndGeneralUserEmailIdAndGeneralUserUserId(
+		    String lastName, String firstName, String email, Long userId);
+	
+	Optional<PatientProfile> findById(int patientId);
+
+}
+

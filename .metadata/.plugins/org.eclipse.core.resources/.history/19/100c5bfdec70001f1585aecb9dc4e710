@@ -1,0 +1,28 @@
+package com.onehealth.lifestyleandhistory.security;
+
+ import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+ 
+@Configuration
+public class SecurityConfig {
+ 
+ 
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable());
+ 
+        http.authorizeHttpRequests(authorize -> authorize
+//                .requestMatchers("/api/doctors/appointment/getAllAppointments").permitAll()
+                .anyRequest().authenticated());
+
+ 
+        http.oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(opaqueToken -> {
+            opaqueToken.introspector(customOpaqueTokenIntrospector);
+        }));
+ 
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+ 
+        return http.build();
+    }
+}
+ 
