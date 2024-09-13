@@ -80,21 +80,28 @@ public class PatientProfileController {
 
 	@PostMapping("/login")
 	public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
-		try {
-			logger.info("Received POST request at /login with email: {}", loginRequest.getEmailId());
-//			AccessTokenResponse tokenResponse = keycloakSecurityUtils.getAccessToken(loginRequest.getEmailId(),
-//				loginRequest.getPassword());
-			GeneralUser user = patientUserService.getUserByEmailIdAndPassword(loginRequest.getEmailId(), loginRequest.getPassword());
-			Map<String, Object> response = new HashMap<>();
-//			response.put("userId", userId);
-//			response.put("tokenResponse", tokenResponse);
-			ResponseMessage<Map<String, Object>> responseMessage = new ResponseMessage<>("Login Successful", response);
-			return ResponseEntity.ok(responseMessage);
-		} catch (Exception e) {
-			logger.error("Error during login for email {}: {}", loginRequest.getEmailId(), e.getMessage(), e);
-			ResponseMessage<String> errorResponse = new ResponseMessage<>("Invalid credentials", null);
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-		}
+	    try {
+	        logger.info("Received POST request at /login with email: {}", loginRequest.getEmailId());
+ 
+	        // Retrieve the user based on emailId and password
+	        GeneralUser user = patientUserService.getUserByEmailIdAndPassword(loginRequest.getEmailId(), loginRequest.getPassword());
+ 
+	        // Create a map to return only the userId
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("userId", user.getUserId());
+ 
+	        // Wrap the userId in the ResponseMessage class
+	        ResponseMessage<Map<String, Object>> responseMessage = new ResponseMessage<>("Login Successful", response);
+	        
+	        // Return the userId as part of the response
+	        return ResponseEntity.ok(responseMessage);
+	    } catch (Exception e) {
+	        logger.error("Error during login for email {}: {}", loginRequest.getEmailId(), e.getMessage(), e);
+ 
+	        // Return an error response in case of invalid credentials
+	        ResponseMessage<String> errorResponse = new ResponseMessage<>("Invalid credentials", null);
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+	    }
 	}
 
 	@GetMapping
