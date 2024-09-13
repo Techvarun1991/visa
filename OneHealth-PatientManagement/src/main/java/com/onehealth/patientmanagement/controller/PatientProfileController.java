@@ -302,7 +302,7 @@ public class PatientProfileController {
 			logger.info("Received a GET request to retrieve all patient profiles for user ID: {}", userId);
 
 			Set<PatientProfile> patientProfiles = patientUserService.getAllPatientsByUserId(userId);
-			logger.info("Retrieved patient profiles: {}", patientProfiles);
+			logger.info("Retrieved patient profiles");
 
 			return new ResponseEntity<>(patientProfiles, HttpStatus.OK);
 		} catch (ProfileNotFoundException e) {
