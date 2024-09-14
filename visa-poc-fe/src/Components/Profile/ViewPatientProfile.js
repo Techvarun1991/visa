@@ -27,7 +27,7 @@ export default function ViewPatientProfile() {
   const navigate = useNavigate();
   const { patientId } = useParams();
   const [patientData, setPatientData] = useState('');
-  
+
   useEffect(() => {
     axios.get(`${API_BASE_URL}/patientUser/byPatientId/${patientId}`)
       .then((response) => {
@@ -39,8 +39,12 @@ export default function ViewPatientProfile() {
     navigate('/layout/patient-profile/edit');
   };
 
+  const handleAddLifeStyleClick = () => {
+    navigate(`/layout/lifestyle/${patientId}`);
+  };
+
   const handleLifeStyle = () => {
-    navigate('/layout/lifestyle/view');
+    navigate(`/layout/lifestyle/view/${patientId}`);
   };
 
   const handleDeleteClick = () => {
@@ -199,14 +203,17 @@ export default function ViewPatientProfile() {
               </Grid>
             </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'end', mt: 4 }}>
-              <Button disabled variant="text" color="primary" onClick={handleEditClick}>
-                Edit
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Button variant="text" color="primary" onClick={handleAddLifeStyleClick}>
+                Add Lifestyle Info
               </Button>
               <Button variant="text" color="secondary" onClick={handleLifeStyle}>
                 View Lifestyle
               </Button>
               <Button disabled variant="text" color="error" onClick={handleDeleteClick}>
+                <Button disabled variant="text" color="primary" onClick={handleEditClick}>
+                  Edit
+                </Button>
                 Delete
               </Button>
             </Box>

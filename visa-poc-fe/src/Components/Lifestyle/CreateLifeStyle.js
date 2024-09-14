@@ -1,26 +1,72 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Grid, TextField, Container, Box, Typography, Paper, MenuItem } from '@mui/material';
+import { Button, Grid, TextField, Container, Box, Typography, Paper, MenuItem, DialogContent, Dialog, DialogTitle, DialogActions } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import API_BASE_URL from '../../Api/ApiConfig';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+// import API_BASE_URL_LIFESTYLE from '../../Api/ApiConfigLifeStyle';
 
 export default function CreateLifeStyle() {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
 
+  const { register, handleSubmit, formState: { errors }, watch } = useForm();
   const [smoke, setSmoke] = useState('');
   const [alcohol, setAlcohol] = useState('');
   const [exercise, setExercise] = useState('');
   const [foodPreferences, setFoodPreferences] = useState('');
   const [occupation, setOccupation] = useState('');
-
+  const userId = localStorage.getItem('userId');
+  const { patientId } = useParams();
   // Watch for changes
   const smokeWatch = watch('smoke', smoke);
   const alcoholWatch = watch('alcohol', alcohol);
   const exerciseWatch = watch('exercise', exercise);
   const foodPreferencesWatch = watch('foodPreferences', foodPreferences);
   const occupationWatch = watch('occupation', occupation);
+  const [formData, setFormData] = React.useState(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const navigate = useNavigate();
 
   const onSubmit = (data) => {
-    console.log(data);
-    // Add your logic for form submission here
+    setFormData(data);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+
+  const handleRegister = async () => {
+    try {
+      const payload = {
+        userId: parseInt(userId), // Ensure it's an integer, though it might already be
+        patientId: parseInt(patientId), // Convert patientId to an integer if needed
+        smoke: formData.smoke,
+        alcohol: formData.alcohol,
+        exercise: formData.exercise,
+        foodPreferences: formData.foodPreferences,
+        occupation: formData.occupation
+      };
+
+      console.log('payload:', payload);
+      const response = await axios.post(`${API_BASE_URL}/lifeStyleAndHistory/lifeStyle`, payload);
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Lifestyle is created.');
+        setTimeout(() => {
+          navigate('/');
+        }, 500);
+      }
+
+    } catch (error) {
+      console.log(error)
+      if (error.response.status === 400) {
+        toast.error('You have already added the LifeStyle, kindly check.');
+        return;
+      }
+      console.error('There was an error registering the account:', error);
+      toast.error('There was an error creating your account. Please try again.');
+    }
   };
 
   return (
@@ -136,6 +182,26 @@ export default function CreateLifeStyle() {
           </Button>
         </Box>
       </Paper>
+
+      <Dialog open={dialogOpen} onClose={handleDialogClose} fullWidth maxWidth="sm">
+        <DialogTitle>Confirm Registration</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to update the Lifestyle ?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+
+          <Button onClick={handleDialogClose} color="error">
+            Cancel
+          </Button>
+          <Button onClick={handleRegister} color="primary" autoFocus>
+            Register
+          </Button>
+
+        </DialogActions>
+      </Dialog>
+
     </Container>
   );
 }
