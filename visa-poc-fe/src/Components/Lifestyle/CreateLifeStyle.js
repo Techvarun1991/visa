@@ -51,21 +51,24 @@ export default function CreateLifeStyle() {
 
       console.log('payload:', payload);
       const response = await axios.post(`${API_BASE_URL}/lifeStyleAndHistory/lifeStyle`, payload);
+
       if (response.status === 200 || response.status === 201) {
         toast.success('Lifestyle is created.');
         setTimeout(() => {
-          navigate('/');
+          navigate(`/layout/lifestyle/view/${patientId}`);
         }, 500);
       }
 
     } catch (error) {
       console.log(error)
-      if (error.response.status === 400) {
-        toast.error('You have already added the LifeStyle, kindly check.');
+      if (error.response && error.response.status === 400) {
+        toast.error('You have already added the Lifestyle. Redirecting in 3 seconds...');
+        setTimeout(() => {
+          navigate(`/layout/lifestyle/view/${patientId}`);
+        }, 3000);
         return;
+        toast.error('There was an error creating your account. Please try again.');
       }
-      console.error('There was an error registering the account:', error);
-      toast.error('There was an error creating your account. Please try again.');
     }
   };
 

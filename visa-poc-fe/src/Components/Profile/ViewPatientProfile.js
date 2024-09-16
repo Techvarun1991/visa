@@ -1,32 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Paper, Grid, Button, CssBaseline } from '@mui/material';
+import { Box, Container, Typography, Paper, Grid, Button, CssBaseline, Dialog, DialogTitle, DialogContent, DialogActions, Divider } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import EditIcon from '@mui/icons-material/Edit';
 import API_BASE_URL from '../../Api/ApiConfig';
+import { toast } from 'react-toastify';
 
-// const patientData = {
-//   firstName: 'John',
-//   lastName: 'Doe',
-//   mobileNumber: '9876543210',
-//   emailId: 'john.doe@example.com',
-//   address: '123 Elm Street',
-//   city: 'Los Angeles',
-//   pinCode: '90001',
-//   country: 'USA',
-//   gender: 'Male',
-//   age: 30,
-//   dob: '1993-01-01',
-//   bloodGroup: 'A+',
-//   height: 175,
-//   weight: 70,
-//   maritalStatus: 'Single',
-// };
 
 export default function ViewPatientProfile() {
 
   const navigate = useNavigate();
   const { patientId } = useParams();
   const [patientData, setPatientData] = useState('');
+  const [deleteDialog, setDeleteDialog] = useState(false);
 
   useEffect(() => {
     axios.get(`${API_BASE_URL}/patientUser/byPatientId/${patientId}`)
@@ -36,7 +24,7 @@ export default function ViewPatientProfile() {
   }, [patientId])
 
   const handleEditClick = () => {
-    navigate('/layout/patient-profile/edit');
+    navigate(`/layout/patient-profile/edit/${patientId}`);
   };
 
   const handleAddLifeStyleClick = () => {
@@ -47,179 +35,136 @@ export default function ViewPatientProfile() {
     navigate(`/layout/lifestyle/view/${patientId}`);
   };
 
-  const handleDeleteClick = () => {
-    alert('Patient deleted successfully.');
-    navigate('/layout/patient-profile');
+  const handleDialogClose = () => {
+    setDeleteDialog(false);
   };
 
+
+  const handleDeleteClick = () => {
+    setDeleteDialog(true);
+  };
+
+  // const handleConfirmDeleteClick = async () => {
+  //   try {
+  //     // Make an axios DELETE request to the endpoint using patientId
+  //     const response = await axios.delete(`${API_BASE_URL}/patientUser/byPatientId/${patientId}`);
+
+  //     if (response.status === 200 || response.status === 204) {
+  //       toast.success('Profile deleted successfully!');
+  //       navigate('/layout/patient-profiles');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error deleting profile:', error);
+  //     toast.error('Failed to delete the profile. Please try again.');
+  //   }
+  // };
+
+
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-      <Container component="main" maxWidth="sm">
+    <Box sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      bgcolor: '#f5f5f5',
+      flexDirection: 'column',
+    }}>
+      <Container component="main" maxWidth="lg">
         <CssBaseline />
-        <Paper elevation={3}>
-          <Box sx={{ p: 3, bgcolor: '#e0f7fa' }}>
-            <Typography component="h1" variant="h4" sx={{ mb: 2, textAlign: 'center' }}>
-              Patient Profile Information
+        <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+          <Box
+            sx={{
+              p: 3,
+              bgcolor: '#e0f7fa',
+              textAlign: 'center',
+            }}
+          >
+            <Typography component="h1" variant="h4">
+              <strong>
+                Member's Profile Information
+              </strong>
             </Typography>
           </Box>
 
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 4 }}>
             <Grid container spacing={2}>
-              <Grid container item sm={12} xs={12}>
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>First Name:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.firstName}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Last Name:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.lastName}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Mobile Number:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.mobileNumber}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Email:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.emailId}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Address:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.address}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>City:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.city}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Pin Code:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.pinCode}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Country:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.country}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Gender:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.gender}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Age:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.age}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Date of Birth:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.dob}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Blood Group:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.bloodGroup}</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Height (cm):</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.height} cm</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Weight (kg):</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.weight} kg</Typography>
-                  </Grid>
-                </Grid>
-
-                <Grid container sx={{ mb: 1 }}>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2"><strong>Marital Status:</strong></Typography>
-                  </Grid>
-                  <Grid item sm={6} xs={6}>
-                    <Typography variant="subtitle2" color="text.secondary">{patientData.maritalStatus}</Typography>
-                  </Grid>
+              {/* Patient's Personal Info Section */}
+              <Grid item xs={12} sx={{ mb: 4 }}>
+                <Typography variant="h5" sx={{ mb: 2 }}>
+                  Personal Information
+                </Typography>
+                <Grid container spacing={2}>
+                  {[
+                    { label: 'First Name', value: patientData.firstName },
+                    { label: 'Last Name', value: patientData.lastName },
+                    { label: 'Mobile Number', value: patientData.mobileNumber },
+                    { label: 'Email', value: patientData.emailId },
+                    { label: 'Address', value: patientData.address },
+                    { label: 'City', value: patientData.city },
+                    { label: 'Pin Code', value: patientData.pinCode },
+                    { label: 'Country', value: patientData.country },
+                    { label: 'Gender', value: patientData.gender },
+                    { label: 'Age', value: patientData.age },
+                    { label: 'Date of Birth', value: patientData.dob },
+                    { label: 'Blood Group', value: patientData.bloodGroup },
+                    { label: 'Height (cm)', value: `${patientData.height} cm` },
+                    { label: 'Weight (kg)', value: `${patientData.weight} kg` },
+                    { label: 'Marital Status', value: patientData.maritalStatus },
+                  ].map(({ label, value }, index) => (
+                    <Grid key={index} item xs={12} sm={6}>
+                      <Typography variant="subtitle2">
+                        <strong>{label}:</strong> {value}
+                      </Typography>
+                    </Grid>
+                  ))}
                 </Grid>
               </Grid>
-            </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-              <Button variant="text" color="primary" onClick={handleAddLifeStyleClick}>
-                Add Lifestyle Info
-              </Button>
-              <Button variant="text" color="secondary" onClick={handleLifeStyle}>
-                View Lifestyle
-              </Button>
-              <Button disabled variant="text" color="error" onClick={handleDeleteClick}>
-                <Button disabled variant="text" color="primary" onClick={handleEditClick}>
-                  Edit
-                </Button>
-                Delete
-              </Button>
-            </Box>
+              <Divider sx={{ my: 3 }} />
+
+              {/* Action Buttons */}
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'end', gap: 2, mt: 2 }}>
+                  <Button startIcon={<AddBoxIcon />} color="primary" onClick={handleAddLifeStyleClick}>
+                    Add Lifestyle Info
+                  </Button>
+                  <Button startIcon={<RateReviewIcon />} color="secondary" onClick={handleLifeStyle}>
+                    View Lifestyle
+                  </Button>
+                  <Button
+                    startIcon={<EditIcon />}
+                    color="info"
+
+                    onClick={handleEditClick}
+                  >
+                    Edit
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
         </Paper>
       </Container>
+
+      {/* <Dialog open={deleteDialog} onClose={handleDialogClose} fullWidth maxWidth="sm">
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this patient profile ?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+
+          <Button onClick={handleDialogClose} color="primary" >
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDeleteClick} color="error" autoFocus>
+            Delete
+          </Button>
+
+        </DialogActions>
+      </Dialog> */}
+
     </Box>
   );
 }

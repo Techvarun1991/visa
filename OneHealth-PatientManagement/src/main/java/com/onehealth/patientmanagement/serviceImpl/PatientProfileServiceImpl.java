@@ -527,7 +527,29 @@ public class PatientProfileServiceImpl implements PatientProfileService {
 	}
 
 	
-
-
+	@Override
+	public long getPatientCountByUserId(Long userId) {
+	    try {
+	        return profileRepository.countByGeneralUserUserId(userId);
+	    } catch (Exception e) {
+	        // Log the exception or handle it as appropriate
+	        e.printStackTrace(); // Print stack trace for debugging purposes
+	        return -1; // Return an appropriate default value or error indicator
+	    }
+	}
+	
+	
+	@Override
+	public double getAverageAgeByUserId(Long userId) {
+	    try {
+	        Double avgAge = profileRepository.findAverageAgeByUserId(userId);
+	        return avgAge != null ? avgAge : 0.0;
+	    } catch (Exception e) {
+	        // Log the exception or handle it as appropriate
+	        e.printStackTrace(); // Print stack trace for debugging purposes
+	        return 0.0; // Return default value in case of an error
+	    }
+	}
+	
 
 }

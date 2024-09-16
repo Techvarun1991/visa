@@ -21,13 +21,13 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../Api/ApiConfig';
 
-
-
 export default function PatientProfile() {
 
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [patientData, setPatientData] = useState([]);
+  const [patientCount, setPatientCount] = useState(0);
+  const [averageAgeCount, setAverageAgeCount] = useState(0.0)
 
   useEffect(() => {
     axios.get(`${API_BASE_URL}/patientUser/allProfileByuserId/${userId}`)
@@ -36,6 +36,20 @@ export default function PatientProfile() {
       })
   }, [userId])
 
+  useEffect(() => {
+    axios.get(`${API_BASE_URL}/patientUser/count/patient/${userId}`)
+      .then((response) => {
+        setPatientCount(response.data)
+      })
+  }, [userId])
+
+  useEffect(() => {
+    axios.get(`${API_BASE_URL}/patientUser/averageAge/${userId}`)
+      .then((response) => {
+        setAverageAgeCount(response.data);
+      })
+  }, [userId]);
+  
   const handleSearchFilter = (event) => {
     console.log(event.target.value);
   }
@@ -61,7 +75,7 @@ export default function PatientProfile() {
         {/* Header Section */}
         <Box sx={{ p: 3, bgcolor: '#e0f7fa', mb: 3 }}>
           <Typography component="h1" variant="h4" sx={{ mb: 2, textAlign: 'center' }}>
-            <strong> Registered Patients</strong>
+            <strong> Registered Family Members</strong>
           </Typography>
           <Typography variant="body1" sx={{ textAlign: 'center' }}>
             The list of registered patients. Use the search bar below to quickly find specific patient.
@@ -73,8 +87,8 @@ export default function PatientProfile() {
           <Grid item xs={12} sm={4}>
             <Card>
               <CardContent>
-                <Typography variant="h5">Total Patients</Typography>
-                <Typography variant="h6">{patientData.length}</Typography>
+                <Typography variant="h5">Total Count</Typography>
+                <Typography variant="h6">{patientCount}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -83,7 +97,7 @@ export default function PatientProfile() {
               <CardContent>
                 <Typography variant="h5">Average Age</Typography>
                 <Typography variant="h6">
-                  {Math.round(patientData.reduce((sum, p) => sum + p.age, 0) / patientData.length)}
+                  {Math.round(averageAgeCount)}
                 </Typography>
               </CardContent>
             </Card>
@@ -93,8 +107,8 @@ export default function PatientProfile() {
               <CardContent>
                 <Typography variant="h5">Blood Group Distribution</Typography>
                 <Typography variant="h6">
-                  {/* Placeholder logic for distribution */}
-                  A+: 1, B+: 1 {/* Add more blood group details dynamically if needed */}
+                 
+                  A+: 1, B+: 1 
                 </Typography>
               </CardContent>
             </Card>

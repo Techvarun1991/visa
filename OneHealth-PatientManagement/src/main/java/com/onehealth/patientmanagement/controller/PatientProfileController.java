@@ -50,8 +50,6 @@ public class PatientProfileController {
 //	private KeycloakSecurityUtils keycloakSecurityUtils;
 
 	private static final Logger logger = LoggerFactory.getLogger(PatientProfileController.class);
-	
-
 
 	@PostMapping("/saveUser")
 	public ResponseEntity<?> createUser(@RequestBody CreateUserRequestDto generalUser) {
@@ -76,32 +74,31 @@ public class PatientProfileController {
 		}
 	}
 
-
-
 	@PostMapping("/login")
 	public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
-	    try {
-	        logger.info("Received POST request at /login with email: {}", loginRequest.getEmailId());
- 
-	        // Retrieve the user based on emailId and password
-	        GeneralUser user = patientUserService.getUserByEmailIdAndPassword(loginRequest.getEmailId(), loginRequest.getPassword());
- 
-	        // Create a map to return only the userId
-	        Map<String, Object> response = new HashMap<>();
-	        response.put("userId", user.getUserId());
- 
-	        // Wrap the userId in the ResponseMessage class
-	        ResponseMessage<Map<String, Object>> responseMessage = new ResponseMessage<>("Login Successful", response);
-	        
-	        // Return the userId as part of the response
-	        return ResponseEntity.ok(responseMessage);
-	    } catch (Exception e) {
-	        logger.error("Error during login for email {}: {}", loginRequest.getEmailId(), e.getMessage(), e);
- 
-	        // Return an error response in case of invalid credentials
-	        ResponseMessage<String> errorResponse = new ResponseMessage<>("Invalid credentials", null);
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-	    }
+		try {
+			logger.info("Received POST request at /login with email: {}", loginRequest.getEmailId());
+
+			// Retrieve the user based on emailId and password
+			GeneralUser user = patientUserService.getUserByEmailIdAndPassword(loginRequest.getEmailId(),
+					loginRequest.getPassword());
+
+			// Create a map to return only the userId
+			Map<String, Object> response = new HashMap<>();
+			response.put("userId", user.getUserId());
+
+			// Wrap the userId in the ResponseMessage class
+			ResponseMessage<Map<String, Object>> responseMessage = new ResponseMessage<>("Login Successful", response);
+
+			// Return the userId as part of the response
+			return ResponseEntity.ok(responseMessage);
+		} catch (Exception e) {
+			logger.error("Error during login for email {}: {}", loginRequest.getEmailId(), e.getMessage(), e);
+
+			// Return an error response in case of invalid credentials
+			ResponseMessage<String> errorResponse = new ResponseMessage<>("Invalid credentials", null);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
 	}
 
 	@GetMapping
@@ -236,8 +233,6 @@ public class PatientProfileController {
 		}
 	}
 
-
-
 	@GetMapping("/searchByFirstName")
 	public ResponseEntity<?> getUsersByFirstName(@RequestParam String firstName) {
 		List<GeneralUser> users = patientUserService.findByFirstName(firstName);
@@ -259,25 +254,25 @@ public class PatientProfileController {
 
 	@PostMapping("/add")
 	public ResponseEntity<String> createPatientProfile(@RequestBody CreatePatientProfileDto patient) {
-	    try {
-	        logger.info("Received a POST request to create a new patient profile");
+		try {
+			logger.info("Received a POST request to create a new patient profile");
 
-	        // Check if userId is not null
-	        if (patient.getUserId() == null) {
-	            logger.warn("User ID is null");
-	            return new ResponseEntity<>("User ID cannot be null", HttpStatus.BAD_REQUEST);
-	        }
+			// Check if userId is not null
+			if (patient.getUserId() == null) {
+				logger.warn("User ID is null");
+				return new ResponseEntity<>("User ID cannot be null", HttpStatus.BAD_REQUEST);
+			}
 
-	        // Create the patient profile
-	        patientUserService.createPatientProfile(patient);
-	        return new ResponseEntity<>("Created Patient Profile", HttpStatus.CREATED);
-	    } catch (ProfileNotFoundException e) {
-	        logger.error("An error occurred while creating a patient profile: {}", e.getMessage());
-	        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-	    } catch (Exception e) {
-	        logger.error("An internal error occurred: {}", e.getMessage());
-	        return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+			// Create the patient profile
+			patientUserService.createPatientProfile(patient);
+			return new ResponseEntity<>("Created Patient Profile", HttpStatus.CREATED);
+		} catch (ProfileNotFoundException e) {
+			logger.error("An error occurred while creating a patient profile: {}", e.getMessage());
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			logger.error("An internal error occurred: {}", e.getMessage());
+			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 //	@PostMapping("/add")
@@ -319,7 +314,7 @@ public class PatientProfileController {
 	public PatientProfile getPatientProfileById(@PathVariable int patientId) {
 		return patientUserService.getPatientProfileById(patientId);
 	}
-	
+
 	@GetMapping("/existsByPatientId/{patientId}")
 	public boolean existsPatientProfileById(@PathVariable int patientId) {
 		return patientUserService.existsPatientProfileById(patientId);
@@ -358,19 +353,19 @@ public class PatientProfileController {
 
 	@DeleteMapping("/deleteAllprofiles/byUserId/{userId}")
 	public ResponseEntity<String> deletePatientProfilesByUserId(@PathVariable Long userId) {
-	    try {
-	        // Attempt to delete patient profiles by userId
-	        patientUserService.deletePatientProfilesByUserId(userId);
-	        return ResponseEntity.ok("Patient profiles deleted successfully for userId: " + userId);
-	    } catch (ProfileNotFoundException e) {
-	        // Catch and handle the ProfileNotFoundException
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-	    } catch (Exception e) {
-	        // Handle other exceptions (e.g., database errors)
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting patient profiles.");
-	    }
+		try {
+			// Attempt to delete patient profiles by userId
+			patientUserService.deletePatientProfilesByUserId(userId);
+			return ResponseEntity.ok("Patient profiles deleted successfully for userId: " + userId);
+		} catch (ProfileNotFoundException e) {
+			// Catch and handle the ProfileNotFoundException
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (Exception e) {
+			// Handle other exceptions (e.g., database errors)
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("An error occurred while deleting patient profiles.");
+		}
 	}
-
 
 	@GetMapping("/allProfiles")
 	public ResponseEntity<?> getAllPatientProfiles() {
@@ -384,4 +379,22 @@ public class PatientProfileController {
 		}
 	}
 
+	@GetMapping("/count/patient/{userId}")
+	public ResponseEntity<?> getPatientUserCount(@PathVariable long userId) {
+		try {
+			long count = patientUserService.getPatientCountByUserId(userId);
+			return new ResponseEntity<>(count, HttpStatus.OK);
+		} catch (Exception e) {
+			String errorMessage = "Failed to retrieve user count";
+			logger.error(errorMessage, e);
+			return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/averageAge/{userId}")
+    public ResponseEntity<Double> getAverageAgeByUserId(@PathVariable Long userId) {
+        double averageAge = patientUserService.getAverageAgeByUserId(userId);
+        return ResponseEntity.ok(averageAge);
+    }
+	
 }

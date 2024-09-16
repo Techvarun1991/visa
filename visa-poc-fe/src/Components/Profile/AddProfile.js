@@ -20,6 +20,8 @@ export default function AddProfile() {
   const [formData, setFormData] = React.useState(null);
   // State to control the dialog
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  
+
 
   const validateNameField = (value) => {
     const namePattern = /^[A-Za-z]+$/;
@@ -89,7 +91,7 @@ export default function AddProfile() {
       if (response.status === 200 || response.status === 201) {
         toast.success('Your account has been created successfully!');
         setTimeout(() => {
-          navigate('/layout/landingpage');
+          navigate('/layout/patient-profiles');
         }, 500);
       }
 

@@ -42,7 +42,6 @@ const ViewLifeStyle = () => {
                     <strong>Lifestyle Information</strong>
                 </Typography>
 
-                {/* Check for error state and render the helper message */}
                 {error ? (
                     <>
                         <Typography color="error" variant="body1" mb={3}>
@@ -85,7 +84,7 @@ const ViewLifeStyle = () => {
                 <Grid container spacing={2}>
                     <Grid item sm={12} sx={{ mt: 3, p: 3, display: 'flex', justifyContent: 'end' }}>
                         <Button
-                            disabled={!lifeStyleData} // Disable edit if no data is available
+                            disabled
                             size="medium"
                             startIcon={<EditIcon />}
                             onClick={handleEdit}
@@ -101,6 +100,7 @@ const ViewLifeStyle = () => {
                         </Button>
                     </Grid>
                 </Grid>
+                
             </Paper>
         </Container>
     );

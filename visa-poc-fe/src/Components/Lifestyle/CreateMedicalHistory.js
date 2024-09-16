@@ -43,7 +43,7 @@ export default function CreateMedicalHistory() {
             if (response.status === 200 || response.status === 201) {
                 toast.success('Medical History is created.');
                 setTimeout(() => {
-                    navigate(`/layout/patient-profile/view/${patientId}`);
+                    navigate(`/layout/lifestyle/view/${patientId}`);
                 }, 500);
             }
 

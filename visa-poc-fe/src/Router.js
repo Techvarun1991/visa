@@ -11,6 +11,8 @@ import CreateMedicalHistory from "./Components/Lifestyle/CreateMedicalHistory";
 import LifestyleTab from "./Components/Lifestyle/LifestyleTab";
 import ViewLifeStyle from "./Components/Lifestyle/ViewLifeStyle";
 import ViewLifeStyleTab from "./Components/Lifestyle/ViewLifeStyleTab";
+import EditPatientProfile from "./Components/Profile/EditPatientProfile";
+import NotFound from "./Components/Pages/NotFound";
 
 export default function Router() {
 
@@ -44,6 +46,10 @@ export default function Router() {
                     element: <ViewPatientProfile />,
                 },
                 {
+                    path: 'patient-profile/edit/:patientId',
+                    element: <EditPatientProfile />,
+                },
+                {
                     path: 'lifestyle/:patientId',
                     element: <LifestyleTab />,
                 },
@@ -56,8 +62,11 @@ export default function Router() {
                     element: <CreateMedicalHistory />,
                 },
             ]
+        },
+        {
+            path: '*', // This will match any undefined routes
+            element: <NotFound />,
         }
-
     ]);
 
     return routes;
