@@ -1,0 +1,188 @@
+// Clone Repo
+
+
+GIT_REPO_URL="https://github.com/Techvarun1991/visa.git"
+PROJECT_FOLDER="visa"
+
+if [ ! -d "$PROJECT_FOLDER" ]; then
+  echo "Cloning the Git repository..."
+  git clone "$GIT_REPO_URL"
+else
+  echo "Repository already cloned."
+fi
+
+cd "$PROJECT_FOLDER" || { echo "Failed to enter project directory"; exit 1; }
+
+
+// Installing Dependencies
+
+#!/bin/bash
+
+# Update the system
+sudo dnf update -y
+
+# Install Java 17
+echo "Installing Java 17..."
+sudo dnf install java-17-openjdk-devel -y
+
+# Install Node.js 20.x
+echo "Installing Node.js 20.x..."
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+sudo dnf install -y nodejs
+
+# Install Maven
+echo "Installing Maven..."
+sudo dnf install -y maven
+
+# Install Git
+echo "Installing Git..."
+sudo dnf install -y git
+
+echo "Installation complete for RHEL 9."
+
+
+// Discovery Server
+
+#!/bin/bash
+
+#GIT_REPO_URL="https://github.com/Techvarun1991/visa.git"
+PROJECT_FOLDER="visa"  # Name of the folder the repository will be cloned into
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+
+# Step 1: Navigate to the 'discovery-server' folder
+echo "Navigating into the 'discovery-server' folder..."
+cd "$PROJECT_FOLDER/discovery-server" || { echo "Failed to enter discovery-server directory"; exit 1; }
+
+# Step 2: Run Maven clean install
+echo "Running Maven clean install..."
+mvn clean install -U
+
+# Step 3: Find and execute the JAR file inside the /target folder
+JAR_FILE=$(find target -name "*.jar" | head -n 1)
+
+if [ -z "$JAR_FILE" ]; then
+  echo "JAR file not found in the target directory."
+  exit 1
+else
+  echo "Executing the JAR file: $JAR_FILE"
+  nohup java -jar "$JAR_FILE" > discovery-server.log 2>&1 &
+  echo "Discovery Server started in detached mode!"
+fi
+
+
+// Api Gateway
+
+#!/bin/bash
+
+#GIT_REPO_URL="https://github.com/Techvarun1991/visa.git"
+PROJECT_FOLDER="visa"  # Name of the folder the repository will be cloned into
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+
+# Step 1: Navigate to the 'api-gateway' folder
+echo "Navigating into the 'api-gateway' folder..."
+cd "$PROJECT_FOLDER/api-gateway" || { echo "Failed to enter api-gateway directory"; exit 1; }
+
+# Step 2: Run Maven clean install
+echo "Running Maven clean install..."
+mvn clean install -U
+
+# Step 3: Find and execute the JAR file inside the /target folder
+JAR_FILE=$(find target -name "*.jar" | head -n 1)
+
+if [ -z "$JAR_FILE" ]; then
+  echo "JAR file not found in the target directory."
+  exit 1
+else
+  echo "Executing the JAR file: $JAR_FILE"
+  nohup java -jar "$JAR_FILE" > api-gateway.log 2>&1 &
+  #java -jar "$JAR_FILE"
+  echo "api-gateway started in detached mode!"
+fi
+
+
+// Patient
+
+#!/bin/bash
+
+#GIT_REPO_URL="https://github.com/Techvarun1991/visa.git"
+PROJECT_FOLDER="visa"  # Name of the folder the repository will be cloned into
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+
+# Step 1: Navigate to the 'OneHealth-PatientManagement' folder
+echo "Navigating into the 'OneHealth-PatientManagement' folder..."
+cd "$PROJECT_FOLDER/OneHealth-PatientManagement" || { echo "Failed to enter OneHealth-PatientManagement directory"; exit 1; }
+
+# Step 2: Run Maven clean install
+echo "Running Maven clean install..."
+mvn clean install -U
+
+# Step 3: Find and execute the JAR file inside the /target folder
+JAR_FILE=$(find target -name "*.jar" | head -n 1)
+
+if [ -z "$JAR_FILE" ]; then
+  echo "JAR file not found in the target directory."
+  exit 1
+else
+  echo "Executing the JAR file: $JAR_FILE"
+  #nohup
+  nohup java -jar "$JAR_FILE" > patient-back.log 2>&1 &
+  #java -jar "$JAR_FILE"
+  echo "OneHealth-PatientManagement started in detached mode!"
+fi
+
+
+// Lifestyle
+
+#!/bin/bash
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+
+
+#GIT_REPO_URL="https://github.com/Techvarun1991/visa.git"
+PROJECT_FOLDER="visa"  # Name of the folder the repository will be cloned into
+
+
+# Step 1: Navigate to the 'OneHealth-LifestyleandMedicalHistory' folder
+
+echo "Navigating into the 'OneHealth-LifestyleandMedicalHistory' folder..."
+cd "$PROJECT_FOLDER/OneHealth-LifestyleandMedicalHistory" || { echo "Failed to enter OneHealth-LifestyleandMedicalHistory directory"; exit 1; }
+
+# Step 2: Run Maven clean install
+echo "Running Maven clean install..."
+mvn clean install -U
+
+# Step 3: Find and execute the JAR file inside the /target folder
+JAR_FILE=$(find target -name "*.jar" | head -n 1)
+
+if [ -z "$JAR_FILE" ]; then
+  echo "JAR file not found in the target directory."
+  exit 1
+else
+  echo "Executing the JAR file: $JAR_FILE"
+  nohup java -jar "$JAR_FILE" > lifestyle.log 2>&1 &
+  #java -jar "$JAR_FILE"
+  echo "OneHealth-LifestyleandMedicalHistory started in detached mode!"
+fi
+
+
+// Frontend
+
+
+cd visa/visa-poc-fe || { echo "Failed to enter the project directory"; exit 1; }
+
+# Install project dependencies
+echo "Installing project dependencies..."
+npm install
+
+# Set API Gateway path
+# Replace with your desired API gateway path, e.g., api.example.com
+# export REACT_APP_BACKEND_URL="http://10.216.171.7:8000"
+
+# Start the React application in detached mode
+echo "Starting the React application with the API Gateway path..."
+nohup npm start > react-app.log 2>&1 &
+
+echo "React application started in detached mode!"

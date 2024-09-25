@@ -70,7 +70,7 @@ const LandingPage = () => {
             <Card sx={{ maxWidth: 345, textAlign: 'center' }}>
               <CardMedia
                 sx={{ height: 200 }}
-                image="/assets/card11.png" // Add your media image path here
+                image="/Assets/card11.png" // Add your media image path here
                 title="Family Management"
               />
               <CardContent>
@@ -91,7 +91,7 @@ const LandingPage = () => {
             <Card sx={{ maxWidth: 345, textAlign: 'center' }}>
               <CardMedia
                 sx={{ height: 200 }}
-                image="/assets/card22.png" // Add your media image path here
+                image="/Assets/card22.png" // Add your media image path here
                 title="Family Management"
               />
               <CardContent>
@@ -111,7 +111,7 @@ const LandingPage = () => {
             <Card sx={{ maxWidth: 345, textAlign: 'center' }}>
               <CardMedia
                 sx={{ height: 200 }}
-                image="/assets/card3.png"// Add your media image path here
+                image="/Assets/card3.png"// Add your media image path here
                 title="Family Management"
               />
               <CardContent>
