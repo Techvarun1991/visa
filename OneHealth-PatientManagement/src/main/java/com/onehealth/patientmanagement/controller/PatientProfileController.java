@@ -57,9 +57,6 @@ public class PatientProfileController {
 			logger.info("Received POST request at / saveUser with user details: {}", generalUser);
 			// Call the service method to create a new user
 			GeneralUser createdUser = patientUserService.createGeneralUser(generalUser);
-//			patientUserService.assignRoleToUser(createdUser.getUserId(), "PATIENT");
-
-			// Create a response message with a success message and the created user object
 			ResponseMessage<GeneralUser> responseMessage = new ResponseMessage<>("User Created Successfully",
 					createdUser);
 			return new ResponseEntity<>(responseMessage, HttpStatus.CREATED);
