@@ -15,8 +15,8 @@ import { Link } from 'react-router-dom';
 import AccountPopover from './AccountPopover';
 
 const pages = [
-    { label: 'Add Profile', path: '/layout/add-profile' },
-    { label: 'Patient Profiles', path: '/layout/patient-profiles' },
+    { label: 'Add Family Member', path: '/layout/add-profile' },
+    { label: 'Member Profiles', path: '/layout/patient-profiles' },
     // { label: 'Life Style', path: '/layout/lifestyle' }
 ];
 

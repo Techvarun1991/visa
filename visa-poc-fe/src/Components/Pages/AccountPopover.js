@@ -28,19 +28,15 @@ export default function AccountPopover() {
     setOpen(null);
   }
 
-
   const handleLogoutClick = () => {
     if (open) {
-    //   sessionStorage.removeItem('pharmacyID');
+      localStorage.clear();
       navigate('/');
       setOpen(null);
     }
   };
 
-//   const handleChangePassword = () => {
-//     navigate('/admin/account/changepassword');
-//     setOpen(null);
-//   }
+ 
   return (
     <>
       <IconButton
@@ -60,7 +56,7 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <Avatar  alt="photoURL" />
+        <Avatar alt="photoURL" />
       </IconButton>
 
       <Popover

@@ -13,8 +13,11 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'; // Add this import
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from 'axios';
 import API_BASE_URL from '../../Api/ApiConfig';
+import { IconButton, InputAdornment } from '@mui/material';
 
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -44,6 +47,11 @@ export default function SignInCard() {
   const [open, setOpen] = React.useState(false);
   const [formaData, setFormData] = React.useState(null);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -160,8 +168,8 @@ export default function SignInCard() {
               error={passwordError}
               helperText={passwordErrorMessage}
               name="password"
-              placeholder="••••••"
-              type="password"
+              placeholder="********"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               autoComplete="current-password"
               autoFocus
@@ -169,9 +177,22 @@ export default function SignInCard() {
               fullWidth
               variant="outlined"
               color={passwordError ? 'error' : 'primary'}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleTogglePasswordVisibility}
+                    >
+                      {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
           </FormControl>
           <FormControlLabel
+            disabled
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />

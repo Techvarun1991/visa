@@ -12,10 +12,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'; // Add this import
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from 'axios';
 import API_BASE_URL from '../../Api/ApiConfig';
 
@@ -25,6 +29,11 @@ export default function SignUp() {
   const [formData, setFormData] = React.useState(null);
   // State to control the dialog
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const validateNameField = (value) => {
     const namePattern = /^[A-Za-z]+$/;
@@ -197,7 +206,7 @@ export default function SignUp() {
                       fullWidth
                       name="password"
                       label="Password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       id="password"
                       autoComplete="new-password"
                       {...register('password', {
@@ -206,6 +215,18 @@ export default function SignUp() {
                       })}
                       error={!!errors.password}
                       helperText={errors.password?.message}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={handleTogglePasswordVisibility}
+                            >
+                              {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   </Grid>
                   <Grid item xs={6}>
@@ -214,7 +235,7 @@ export default function SignUp() {
                       fullWidth
                       name="confirmPassword"
                       label="Confirm Password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       id="confirmPassword"
                       autoComplete="confirm-new-password"
                       {...register('confirmPassword', {
@@ -224,6 +245,18 @@ export default function SignUp() {
                       })}
                       error={!!errors.confirmPassword}
                       helperText={errors.confirmPassword?.message}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={handleTogglePasswordVisibility}
+                            >
+                              {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   </Grid>
                 </Grid>

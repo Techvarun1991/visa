@@ -2,46 +2,56 @@ import React, { useEffect, useState } from 'react';
 import { Container, Button, Paper, Typography, Grid, Divider } from '@mui/material';
 import ReplyIcon from '@mui/icons-material/Reply';
 import EditIcon from '@mui/icons-material/Edit';
-import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useParams,Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../Api/ApiConfig';
 
-const ViewLifeStyle = () => {
+
+const dummyMedicalHistoryData = {
+    allergies: 'None',
+    currentMedication: 'None',
+    pastMedication: 'Aspirin',
+    chronicDiseases: 'None',
+    injuries: 'Fractured arm in 2018',
+    surgeries: 'Appendectomy in 2015'
+};
+
+export default function ViewMedicatlHistory() {
+
     const { patientId } = useParams();
     const navigate = useNavigate();
-    const [lifeStyleData, setLifeStyleData] = useState(null);
+    const [medicalHistory, setMedicalHistoryData] = useState('');
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/lifeStyleAndHistory/lifeStyle/byPatientId/${patientId}`)
+        axios.get(`${API_BASE_URL}/lifeStyleAndHistory/MedicalHistory/byPatientId/${patientId}`)
             .then((response) => {
-                setLifeStyleData(response.data);
-                setError(null); // Reset any previous errors
+                console.log(response.data);
+                setMedicalHistoryData(response.data);
             }).catch((error) => {
                 if (error.response && error.response.status === 404) {
-                    setError("Lifestyle data not found. Please add lifestyle information.");
+                    setError("Medical history data not found. Please add medical history information.");
                 } else {
-                    setError("An error occurred while fetching lifestyle data.");
+                    setError("An error occurred while fetching medical history data.");
                 }
-                setLifeStyleData(null); // Clear data in case of error
+                setMedicalHistoryData(null);
             });
-    }, [patientId]);
+    }, [patientId])
 
     const handleGoBack = () => {
         navigate(-1);
     };
 
     const handleEdit = () => {
-        console.log("Edit");
+        console.log("Edit")
     };
 
     return (
         <Container component="main" maxWidth="md" sx={{ mt: 3 }}>
             <Paper sx={{ p: 3 }}>
                 <Typography component="h1" variant="h5" mb={2}>
-                    <strong>Lifestyle Information</strong>
+                    <strong>Medical History</strong>
                 </Typography>
-
                 {error ? (
                     <>
                         <Typography color="error" variant="body1" mb={3}>
@@ -54,31 +64,31 @@ const ViewLifeStyle = () => {
                             variant="body2"
                             sx={{ textDecoration: 'underline', cursor: 'pointer' }}
                         >
-                            Click here to add lifestyle information
+                            Click here to add medical history information
                         </RouterLink>
                     </>
                 ) : (
-                    lifeStyleData && (
-                        <Grid padding={2} container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <Typography><strong>Smoking Habits:</strong> {lifeStyleData.smoke}</Typography>
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <Typography><strong>Alcohol Consumption:</strong> {lifeStyleData.alcohol}</Typography>
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <Typography><strong>Exercise Routine:</strong> {lifeStyleData.exercise}</Typography>
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <Typography><strong>Food Preferences:</strong> {lifeStyleData.foodPreferences}</Typography>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Typography><strong>Occupation:</strong> {lifeStyleData.occupation}</Typography>
-                            </Grid>
+                    <Grid padding={2} container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <Typography><strong>Allergies:</strong> {medicalHistory.allergies}</Typography>
                         </Grid>
-                    )
+                        <Grid item xs={12} sm={6}>
+                            <Typography><strong>Current Medication:</strong> {medicalHistory.currentMedication}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography><strong>Past Medication:</strong> {medicalHistory.pastMedication}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography><strong>Chronic Diseases:</strong> {medicalHistory.chronicDiseases}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography><strong>Injuries:</strong> {medicalHistory.injuries}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Typography><strong>Surgeries:</strong> {medicalHistory.surgeries}</Typography>
+                        </Grid>
+                    </Grid>
                 )}
-
                 <Divider sx={{ my: 3 }} />
 
                 <Grid container spacing={2}>
@@ -87,23 +97,22 @@ const ViewLifeStyle = () => {
                             disabled
                             size="medium"
                             startIcon={<EditIcon />}
-                            onClick={handleEdit}
+                            onClick={() => handleEdit()}
                         >
                             Edit
                         </Button>
                         <Button
                             size="medium"
                             startIcon={<ReplyIcon />}
-                            onClick={handleGoBack}
+                            onClick={() => handleGoBack()}
                         >
                             Back
                         </Button>
                     </Grid>
                 </Grid>
-                
             </Paper>
+
+
         </Container>
     );
-};
-
-export default ViewLifeStyle;
+}

@@ -1,6 +1,7 @@
 package com.onehealth.patientmanagement.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -75,5 +76,8 @@ public interface PatientProfileService {
 
 	boolean existsPatientProfileById(int patientId);
 
+	long getPatientCountByUserId(Long userId);
 
+	double getAverageAgeByUserId(Long userId);
+	
 }
